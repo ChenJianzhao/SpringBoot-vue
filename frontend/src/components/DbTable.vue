@@ -1,53 +1,65 @@
 <template>
     <div>
         <el-table
-                :data="tableData"
+                :data="pipelineData"
                 border
                 style="width: 100%"
                 class="table">
-            <el-table-column
-                    fixed
-                    prop="id"
-                    label="item_id"
-                    width="100">
-            </el-table-column>
-            <el-table-column
-                    prop="username"
-                    label="username"
-                    width="120">
-            </el-table-column>
-            <el-table-column
-                    prop="email"
-                    label="email"
-                    width="120">
-            </el-table-column>
-            <el-table-column
-                    prop="phone"
-                    label="phone"
-                    width="130">
-            </el-table-column>
-            <el-table-column
-                    prop="sex"
-                    label="sex"
-                    width="100">
-            </el-table-column>
-            <el-table-column
-                    prop="zone"
-                    label="zone"
-                    width="100">
-            </el-table-column>
-            <el-table-column
-                    prop="create_datetime"
-                    label="create_datetime"
-                    width="300"
-                    :formatter="formatter">
-            </el-table-column>
+            <!--<el-table-column-->
+                    <!--fixed-->
+                    <!--prop="id"-->
+                    <!--label="item_id"-->
+                    <!--width="100">-->
+            <!--</el-table-column>-->
+            <!--<el-table-column-->
+                    <!--prop="username"-->
+                    <!--label="username"-->
+                    <!--width="120">-->
+            <!--</el-table-column>-->
+            <!--<el-table-column-->
+                    <!--prop="email"-->
+                    <!--label="email"-->
+                    <!--width="120">-->
+            <!--</el-table-column>-->
+            <!--<el-table-column-->
+                    <!--prop="phone"-->
+                    <!--label="phone"-->
+                    <!--width="130">-->
+            <!--</el-table-column>-->
+            <!--<el-table-column-->
+                    <!--prop="sex"-->
+                    <!--label="sex"-->
+                    <!--width="100">-->
+            <!--</el-table-column>-->
+            <!--<el-table-column-->
+                    <!--prop="zone"-->
+                    <!--label="zone"-->
+                    <!--width="100">-->
+            <!--</el-table-column>-->
+            <!--<el-table-column-->
+                    <!--prop="create_datetime"-->
+                    <!--label="create_datetime"-->
+                    <!--width="300"-->
+                    <!--:formatter="formatter">-->
+            <!--</el-table-column>-->
+<el-table-column
+  prop="name"
+  label="流水线"
+  width="300">
+</el-table-column>
+<el-table-column
+  prop="createTime"
+  label="创建时间"
+  width="300"
+  :formatter="dateformatter">
+</el-table-column>
             <el-table-column
                     fixed="right"
                     label="Operation"
                     width="100">
                 <template scope="scope">
-                    <el-button @click="editItem(scope.$index, tableData)" type="text" size="large">Edit</el-button>
+                    <!--<el-button @click="editItem(scope.$index, tableData)" type="text" size="large">运行</el-button>-->
+                    <el-button @click="executePipeline(scope.$index, pipelineData)" type="text" size="large">运行</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -75,6 +87,7 @@
                 email: '',
                 dialogFormVisible: false,
                 form: '',
+                pipelineData: [],
             }
         },
         components: {
@@ -82,6 +95,7 @@
         },
         mounted () {
             this.getCustomers();
+            this.getPipelines();
             Bus.$on('filterResultData', (data) => {
                 this.tableData = data.results;
                 this.total = data.total_pages;
@@ -98,6 +112,25 @@
                 this.dialogFormVisible = false;
             },
 
+            getPipelines: function(){
+              this.$axios.get("http://localhost:8088/pipelines", {
+                params: {
+                  // page: this.currentPage,
+                  // sex: this.sex,
+                  // email: this.email
+                }
+              }).then((response) => {
+                this.pipelineData = response.data;
+                // this.tableData = response.data.data.results;
+                // this.total = response.data.data.total;
+                // this.pageSize = response.data.data.count;
+                console.log(response.data);
+                console.log(this.pipelineData);
+              }).catch(function (response) {
+                console.log(response)
+              });
+            }
+            ,
             getCustomers: function () {
                 this.$axios.get(this.apiUrl, {
                     params: {
@@ -128,10 +161,24 @@
                     console.log(response)
                 });
             },
-
+            executePipeline: function(index, rows){
+              // this.dialogFormVisible = true;
+              const pipelineName = rows[index].name;
+              const exeUrl = "http://localhost:8088/pipelines/" + pipelineName;
+              this.$axios.post(exeUrl).then((response) => {
+                // this.form = response.data;
+                console.log(response)
+              }).catch(function (response) {
+                console.log(response)
+              });
+            },
             formatter(row, column) {
                 let data = this.$moment(row.create_datetime, this.$moment.ISO_8601);
                 return data.format('YYYY-MM-DD')
+            },
+            dateformatter(row, column) {
+              let data = this.$moment(row.createTime, this.$moment.ISO_8601);
+              return data.format('YYYY-MM-DD')
             },
         }
     }
