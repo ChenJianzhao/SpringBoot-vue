@@ -1,7 +1,8 @@
 <template>
     <header style="background-color: rgb(10, 47, 88);">
         <div class="text-logo">{{msg}}</div>
-        <p class="meta">This demo project for express new develop practice demo.</p>
+        <!--<p class="meta">This demo project for express new develop practice demo.</p>-->
+        <p class="meta">beta</p>
         <ul class="header-operations">
         </ul>
     </header>
@@ -12,7 +13,8 @@
         name: 'db-header',
         data () {
             return {
-                msg: 'SpringBoot-vue'
+                // msg: 'SpringBoot-vue'
+                msg: '持续交付系统'
             }
         }
     }

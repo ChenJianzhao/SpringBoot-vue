@@ -1,28 +1,37 @@
 <template>
-    <el-dialog title="Edit" v-model="dialogFormVisible" :close-on-click-modal="false" :show-close="false">
-        <el-form :model="form">
-            <el-form-item label="item_id" :label-width="formLabelWidth">
-                <el-input :disabled="true" v-model="form.id" auto-complete="off"></el-input>
-            </el-form-item>
-            <el-form-item label="username" :label-width="formLabelWidth">
-                <el-input :disabled="true" v-model="form.username" auto-complete="off"></el-input>
-            </el-form-item>
-
-            <el-form-item label="email" :label-width="formLabelWidth">
-                <el-input :disabled="true" v-model="form.email" auto-complete="off"></el-input>
-            </el-form-item>
-
-            <el-form-item label="phone" :label-width="formLabelWidth">
-                <el-input v-model="form.phone" auto-complete="off"></el-input>
-            </el-form-item>
-            <el-form-item label="sex" :label-width="formLabelWidth">
-                <el-input :disabled="true" v-model="form.sex" auto-complete="off"></el-input>
-            </el-form-item>
-            <el-form-item label="zone" :label-width="formLabelWidth">
-                <el-input v-model="form.zone" auto-complete="off"></el-input>
-            </el-form-item>
-
-        </el-form>
+    <el-dialog title="执行记录详情" v-model="dialogFormVisible" :close-on-click-modal="false" :show-close="false"  width="80%">
+        <el-table
+        :data="executeEntryData"
+        border
+        style="width: 100%"
+        class="table">stageSeq
+          <el-table-column
+            prop="stageSeq"
+            label="序号"
+            width="80">
+          </el-table-column>
+          <el-table-column
+            prop="stageDisplayName"
+            label="阶段"
+            width="200">
+          </el-table-column>
+          <el-table-column
+            prop="state"
+            label="状态"
+            width="100">
+          </el-table-column>
+          <el-table-column
+            prop="costTime"
+            label="耗时"
+            width="100"
+            :formatter="timeFormatter">
+          </el-table-column>
+          <el-table-column
+            prop="jenkinsBuildURL"
+            label="日志"
+            width=400>
+          </el-table-column>
+        </el-table>
         <div slot="footer" class="dialog-footer">
             <el-button :plain="true" type="danger" v-on:click="canclemodal">Cancel</el-button>
             <el-button :plain="true" @click="updateForm(form)">Save</el-button>
@@ -36,9 +45,10 @@
         data(){
             return {
                 formLabelWidth: '120px',
+                executeEntryData: [],
             }
         },
-        props: ['dialogFormVisible', 'form'],
+        props: ['dialogFormVisible', 'executeLogData'],
 
         methods: {
             updateForm: function (formName) {
@@ -61,7 +71,23 @@
             },
             canclemodal: function () {
                 this.$emit('canclemodal');
-            }
+            },
+            timeFormatter(row, column) {
+              return (row.costTime / 1000) + ' s'
+            },
+            getExecuteEntry: function (pipelineName, buildId) {
+              const url = "http://localhost:8088/pipelines/" + pipelineName + "/" + buildId;
+              console.log(url);
+              this.$axios.get(url)
+                .then((response) => {
+                  this.executeEntryData = response.data;
+                  console.log("------getExecuteEntry------");
+                  console.log(this.executeEntryData);
+                }).catch(function (response) {
+                console.log(response)
+              });
+
+            },
         }
 
     }

@@ -6,7 +6,7 @@
                 <db-sidebar></db-sidebar>
             </el-col>
             <el-col :span="20" class="content">
-                <db-filterinput></db-filterinput>
+                <!--<db-filterinput></db-filterinput>-->
                 <db-table></db-table>
 
             </el-col>
@@ -31,6 +31,7 @@
     import DbSidebar from './components/DbSidebar.vue'
     import DbFilterinput from './components/DbFilterinput.vue'
     import DbTable from './components/DbTable.vue'
+    import DbLog from './components/DbLog.vue'
     import DbFooter from './components/DbFooter.vue'
     import ElRow from "element-ui/packages/row/src/row";
 
@@ -41,6 +42,7 @@
             DbSidebar,
             DbFilterinput,
             DbTable,
+            DbLog,
             DbFooter
         },
     }

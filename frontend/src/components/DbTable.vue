@@ -1,72 +1,50 @@
 <template>
     <div>
         <el-table
+          ref="singleTable"
                 :data="pipelineData"
                 border
-                style="width: 100%"
+                style="width: 80%"
+                highlight-current-row
+                @current-change="handleCurrentChange"
                 class="table">
-            <!--<el-table-column-->
-                    <!--fixed-->
-                    <!--prop="id"-->
-                    <!--label="item_id"-->
-                    <!--width="100">-->
-            <!--</el-table-column>-->
-            <!--<el-table-column-->
-                    <!--prop="username"-->
-                    <!--label="username"-->
-                    <!--width="120">-->
-            <!--</el-table-column>-->
-            <!--<el-table-column-->
-                    <!--prop="email"-->
-                    <!--label="email"-->
-                    <!--width="120">-->
-            <!--</el-table-column>-->
-            <!--<el-table-column-->
-                    <!--prop="phone"-->
-                    <!--label="phone"-->
-                    <!--width="130">-->
-            <!--</el-table-column>-->
-            <!--<el-table-column-->
-                    <!--prop="sex"-->
-                    <!--label="sex"-->
-                    <!--width="100">-->
-            <!--</el-table-column>-->
-            <!--<el-table-column-->
-                    <!--prop="zone"-->
-                    <!--label="zone"-->
-                    <!--width="100">-->
-            <!--</el-table-column>-->
-            <!--<el-table-column-->
-                    <!--prop="create_datetime"-->
-                    <!--label="create_datetime"-->
-                    <!--width="300"-->
-                    <!--:formatter="formatter">-->
-            <!--</el-table-column>-->
-<el-table-column
-  prop="name"
-  label="流水线"
-  width="300">
-</el-table-column>
-<el-table-column
-  prop="createTime"
-  label="创建时间"
-  width="300"
-  :formatter="dateformatter">
-</el-table-column>
+          <el-table-column
+            prop="name"
+            label="流水线"
+            width="300">
+          </el-table-column>
+          <el-table-column
+            prop="lastSuccessTime"
+            label="上次成功"
+            width="200"
+            :formatter="dateformatter">
+          </el-table-column>
+          <el-table-column
+            prop="lastFailureTime"
+            label="上次失败"
+            width="200"
+            :formatter="dateformatter">
+          </el-table-column>
+          <el-table-column
+            prop="costTime"
+            label="上次持续时间"
+            width="200"
+            :formatter="timeFormatter">
+          </el-table-column>
             <el-table-column
                     fixed="right"
-                    label="Operation"
-                    width="100">
+                    label="操作"
+                    width="200">
                 <template scope="scope">
-                    <!--<el-button @click="editItem(scope.$index, tableData)" type="text" size="large">运行</el-button>-->
-                    <el-button @click="executePipeline(scope.$index, pipelineData)" type="text" size="large">运行</el-button>
+                    <el-button @click="executePipeline(scope.$index, pipelineData)" type="primary" size="small" round>运行</el-button>
                 </template>
             </el-table-column>
         </el-table>
         <el-pagination class="pagination" layout="prev, pager, next" :total="total" :page-size="pageSize"
-                       v-on:current-change="changePage">
+                       v-on:current-change="changePage" style="width: 80%">
         </el-pagination>
-        <db-modal :dialogFormVisible="dialogFormVisible" :form="form" v-on:canclemodal="dialogVisible"></db-modal>
+
+        <db-log ref="logTable" :currentPipeline="currentPipeline"></db-log>
     </div>
 
 </template>
@@ -74,6 +52,7 @@
 <script>
     import Bus from '../eventBus'
     import DbModal from './DbModal.vue'
+    import DbLog from './DbLog.vue'
 
     export default {
         data(){
@@ -88,13 +67,15 @@
                 dialogFormVisible: false,
                 form: '',
                 pipelineData: [],
+                currentPipeline: '',
             }
         },
         components: {
-            DbModal
+            DbModal,
+            DbLog
         },
         mounted () {
-            this.getCustomers();
+            // this.getCustomers();
             this.getPipelines();
             Bus.$on('filterResultData', (data) => {
                 this.tableData = data.results;
@@ -111,26 +92,6 @@
             dialogVisible: function () {
                 this.dialogFormVisible = false;
             },
-
-            getPipelines: function(){
-              this.$axios.get("http://localhost:8088/pipelines", {
-                params: {
-                  // page: this.currentPage,
-                  // sex: this.sex,
-                  // email: this.email
-                }
-              }).then((response) => {
-                this.pipelineData = response.data;
-                // this.tableData = response.data.data.results;
-                // this.total = response.data.data.total;
-                // this.pageSize = response.data.data.count;
-                console.log(response.data);
-                console.log(this.pipelineData);
-              }).catch(function (response) {
-                console.log(response)
-              });
-            }
-            ,
             getCustomers: function () {
                 this.$axios.get(this.apiUrl, {
                     params: {
@@ -161,6 +122,10 @@
                     console.log(response)
                 });
             },
+            formatter(row, column) {
+              let data = this.$moment(row.create_datetime, this.$moment.ISO_8601);
+              return data.format('YYYY-MM-DD')
+            },
             executePipeline: function(index, rows){
               // this.dialogFormVisible = true;
               const pipelineName = rows[index].name;
@@ -172,14 +137,37 @@
                 console.log(response)
               });
             },
-            formatter(row, column) {
-                let data = this.$moment(row.create_datetime, this.$moment.ISO_8601);
-                return data.format('YYYY-MM-DD')
-            },
             dateformatter(row, column) {
               let data = this.$moment(row.createTime, this.$moment.ISO_8601);
               return data.format('YYYY-MM-DD')
             },
+            getPipelines: function(){
+              this.$axios.get("http://localhost:8088/pipelines", {
+                params: {
+                }
+              }).then((response) => {
+                this.pipelineData = response.data;
+                // this.total = response.data.data.total;
+                // this.pageSize = response.data.data.count;
+                console.log(this.pipelineData);
+                this.setCurrent(this.pipelineData[0]);
+              }).catch(function (response) {
+                console.log(response)
+              });
+            }
+            ,
+            timeFormatter(row, column) {
+              return (row.costTime / 1000) + ' s'
+            },
+            setCurrent(row) {
+              // console.log(row);
+              this.$refs.singleTable.setCurrentRow(row);
+            },
+            handleCurrentChange(currentRow, oldCurrentRow) {
+              this.currentPipeline = currentRow.name;
+              console.log("handleCurrentChange: " + this.currentPipeline);
+              this.$refs.logTable.getExecuteLog(this.currentPipeline);
+            }
         }
     }
 </script>

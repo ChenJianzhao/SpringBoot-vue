@@ -11,7 +11,8 @@
             <i class="footdoc">
                 <canvas id="myCanvas" width="80" height="80" style="background-color: transparent;"></canvas>
             </i>
-            <i class="footdoc">2017 @ Boyle.Gu 顾鲍尔. Commemorate the 6 anniversary of enter the profession </i>
+            <!--<i class="footdoc">2017 @ Boyle.Gu 顾鲍尔. Commemorate the 6 anniversary of enter the profession </i>-->
+            <i class="footdoc">2018 铱云科技 </i>
         </div>
 
         <div class="footer-social">
@@ -32,7 +33,8 @@
     export default {
         data(){
             return {
-                message: 'SpringBoot-Vue.js v0.1',
+                // message: 'SpringBoot-Vue.js v0.1',
+                message: '',
             }
         },
         mounted (){
