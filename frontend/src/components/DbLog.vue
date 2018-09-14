@@ -4,7 +4,6 @@
         <el-table v-model="currentPipeline"
                 :data="executeLogData"
                 border
-                style="width: 80%"
                 class="table">
           <el-table-column
             prop="pipelineName"
@@ -14,7 +13,7 @@
           <el-table-column
             prop="state"
             label="状态"
-            width="100">
+            width="150">
           </el-table-column>
           <el-table-column
             prop="buildId"
@@ -24,19 +23,18 @@
           <el-table-column
             prop="gitCommitId"
             label="commit_id"
-            width="300">
+            width="200">
           </el-table-column>
           <el-table-column
             prop="costTime"
             label="持续时间"
-            width="100"
-            :formatter="timeFormatter">
+            width="100">
           </el-table-column>
           <el-table-column
-            prop="costTime"
-            label="完成"
-            width="100"
-            :formatter="timeFormatter">
+            prop="createTime"
+            label="开始"
+            width="200"
+            :formatter="formatter">
           </el-table-column>
             <el-table-column
                     fixed="right"
@@ -98,13 +96,13 @@
             },
 
             formatter(row, column) {
-              let data = this.$moment(row.create_datetime, this.$moment.ISO_8601);
-              return data.format('YYYY-MM-DD')
+              let data = this.$moment(row.createTime);
+              return data.format('YYYY-MM-DD HH:mm:ss')
             },
 
             dateformatter(row, column) {
               let data = this.$moment(row.createTime, this.$moment.ISO_8601);
-              return data.format('YYYY-MM-DD')
+              return data.format('YYYY-MM-DD HH:mm:ss')
             },
 
             getPipelines: function(){
@@ -130,23 +128,51 @@
               return (row.costTime / 1000) + ' s'
             },
             getExecuteLog: function (currentPipeline) {
-              // if(pipelineName===undefined)
-              //   pipelineName = "product-service";
-              console.log("getExecuteLog");
-              console.log(currentPipeline);
-              this.$axios.get("http://localhost:8088/pipelines/" + currentPipeline + "/executeLogs", {
+                // if(pipelineName===undefined)
+                //   pipelineName = "product-service";
+                console.log("getExecuteLog");
+                console.log(currentPipeline);
+                this.$axios.get("http://localhost:8088/pipelines/" + currentPipeline + "/executeLogs", {
                 params: {
                   // page: this.currentPage,
                   // sex: this.sex,
                   // email: this.email
                 }
-              }).then((response) => {
-                this.executeLogData = response.data;
-                console.log("------getExecuteLog------");
-                console.log(this.executeLogData);
-              }).catch(function (response) {
-                console.log(response)
-              });
+                }).then((response) => {
+                    this.executeLogData = response.data;
+                    console.log("------getExecuteLog------");
+                    console.log(this.executeLogData);
+
+                    for(let i in this.executeLogData) {
+                      let log = this.executeLogData[i];
+                      log.costTime = this.millSecondFormat(log.costTime);
+                    }
+                }).catch(function (response) {
+                  console.log(response)
+                });
+            },
+            millSecondFormat: function(time) {
+                if (!time) {
+                  return "";
+                } else {
+                    let date = new Date(time);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+                    // let Y = date.getFullYear() + '-';
+                    // let M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+                    let D = date.getDate() - 1;
+                    let h = date.getHours() - 8;
+                    let m = date.getMinutes();
+                    let s = date.getSeconds();
+                    let timeStr = '';
+                    if( D!==0 )
+                      timeStr = timeStr + D + "天";
+                    if( D!==0 )
+                      timeStr = timeStr + h + "小时";
+                    if( D!==0 )
+                      timeStr = timeStr + m + "分";
+                    timeStr = timeStr + s + "秒";
+                    return timeStr;
+                    // return D+ "天" + h + "小时" + m + "分" + s + "秒";
+                }
             },
             showExecuteEntry: function (index, rows) {
                 this.dialogFormVisible = true;

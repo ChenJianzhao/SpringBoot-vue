@@ -4,7 +4,6 @@
           ref="singleTable"
                 :data="pipelineData"
                 border
-                style="width: 80%"
                 highlight-current-row
                 @current-change="handleCurrentChange"
                 class="table">
@@ -16,20 +15,23 @@
           <el-table-column
             prop="lastSuccessTime"
             label="上次成功"
-            width="200"
-            :formatter="dateformatter">
+            width="200">
+              <template scope="prop">
+                <p>{{ dateformatter(prop.row.lastSuccessTime)}}</p>
+              </template>
           </el-table-column>
           <el-table-column
             prop="lastFailureTime"
             label="上次失败"
-            width="200"
-            :formatter="dateformatter">
+            width="200">
+              <template scope="prop">
+                <p>{{ dateformatter(prop.row.lastFailureTime)}}</p>
+              </template>
           </el-table-column>
           <el-table-column
             prop="costTime"
             label="上次持续时间"
-            width="200"
-            :formatter="timeFormatter">
+            width="200">
           </el-table-column>
             <el-table-column
                     fixed="right"
@@ -41,7 +43,7 @@
             </el-table-column>
         </el-table>
         <el-pagination class="pagination" layout="prev, pager, next" :total="total" :page-size="pageSize"
-                       v-on:current-change="changePage" style="width: 80%">
+                       v-on:current-change="changePage" >
         </el-pagination>
 
         <db-log ref="logTable" :currentPipeline="currentPipeline"></db-log>
@@ -132,28 +134,54 @@
               const exeUrl = "http://localhost:8088/pipelines/" + pipelineName;
               this.$axios.post(exeUrl).then((response) => {
                 // this.form = response.data;
-                console.log(response)
-              }).catch(function (response) {
-                console.log(response)
+                console.log(response);
+                this.$message({
+                  message: "流水线运行开始",
+                  type: 'success'
+                });
+              }).catch(error => {
+                console.log(error.response);
+                let data = error.response.data;
+                if(data.code === 525){
+                  this.$message({
+                    message: data.message,
+                    type: 'warning'
+                  });
+                  // this.$message({
+                  //   message: data.message,
+                  //   type: 'warning'
+                  // });
+
+                }
+
               });
             },
-            dateformatter(row, column) {
-              let data = this.$moment(row.createTime, this.$moment.ISO_8601);
-              return data.format('YYYY-MM-DD')
+            dateformatter(time) {
+              // console.log(time);
+              if(time===null)
+                return '';
+              let data = this.$moment(time);
+              return data.format('YYYY-MM-DD HH:mm:ss');
             },
             getPipelines: function(){
-              this.$axios.get("http://localhost:8088/pipelines", {
-                params: {
-                }
-              }).then((response) => {
-                this.pipelineData = response.data;
-                // this.total = response.data.data.total;
-                // this.pageSize = response.data.data.count;
-                console.log(this.pipelineData);
-                this.setCurrent(this.pipelineData[0]);
-              }).catch(function (response) {
-                console.log(response)
-              });
+                this.$axios.get("http://localhost:8088/pipelines", {
+                  params: {
+                  }
+                }).then((response) => {
+                    this.pipelineData = response.data;
+                    // this.total = response.data.data.total;
+                    // this.pageSize = response.data.data.count;
+                    console.log(this.pipelineData);
+
+                    for(let i in this.pipelineData) {
+                      let log = this.pipelineData[i];
+                      log.costTime = this.millSecondFormat(log.costTime);
+                    }
+
+                  this.setCurrent(this.pipelineData[0]);
+                }).catch(function (response) {
+                  console.log(response)
+                });
             }
             ,
             timeFormatter(row, column) {
@@ -167,7 +195,30 @@
               this.currentPipeline = currentRow.name;
               console.log("handleCurrentChange: " + this.currentPipeline);
               this.$refs.logTable.getExecuteLog(this.currentPipeline);
-            }
+            },
+            millSecondFormat: function(time) {
+              if (!time) {
+                return "";
+              } else {
+                let date = new Date(time);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+                // let Y = date.getFullYear() + '-';
+                // let M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+                let D = date.getDate() - 1;
+                let h = date.getHours() - 8;
+                let m = date.getMinutes();
+                let s = date.getSeconds();
+                let timeStr = '';
+                if( D!==0 )
+                  timeStr = timeStr + D + "天";
+                if( D!==0 )
+                  timeStr = timeStr + h + "小时";
+                if( D!==0 )
+                  timeStr = timeStr + m + "分";
+                timeStr = timeStr + s + "秒";
+                return timeStr;
+                // return D+ "天" + h + "小时" + m + "分" + s + "秒";
+              }
+            },
         }
     }
 </script>

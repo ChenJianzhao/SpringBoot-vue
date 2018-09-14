@@ -1,7 +1,10 @@
 <template>
     <!--<li class="el-menu-item is-active" style="">{{msg}}</li>-->
   <el-menu
-    class="el-menu-vertical-demo">
+    class="el-menu-vertical-demo"
+    background-color="#545c64"
+    text-color="#fff"
+    active-text-color="#ffd04b">
     <el-submenu index="1">
       <template slot="title">
         <i class="el-icon-location"></i>

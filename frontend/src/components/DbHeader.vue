@@ -14,7 +14,7 @@
         data () {
             return {
                 // msg: 'SpringBoot-vue'
-                msg: '持续交付系统'
+                msg: '持续交付平台'
             }
         }
     }

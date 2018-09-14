@@ -18,7 +18,8 @@ import {
     Option,
     Icon,
     Menu,
-    Submenu
+    Submenu,
+    Message
 } from 'element-ui'
 import App from './App.vue'
 import 'element-ui/lib/theme-default/index.css'
@@ -34,6 +35,7 @@ import curvejs from 'curvejs'
 Object.defineProperty(Vue.prototype, '$moment', { value: moment });
 Object.defineProperty(Vue.prototype, '$axios', { value: axios });
 Object.defineProperty(Vue.prototype, '$curvejs', { value: curvejs });
+Object.defineProperty(Vue.prototype, '$message', { value: Message });
 
 Vue.use(Button);
 Vue.use(Select);
@@ -50,6 +52,7 @@ Vue.use(Option);
 Vue.use(Icon);
 Vue.use(Menu);
 Vue.use(Submenu);
+// Vue.use(Message);
 
 locale.use(lang);
 
