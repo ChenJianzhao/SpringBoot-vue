@@ -83,7 +83,7 @@
               return (row.costTime / 1000) + ' s'
             },
             getExecuteEntry: function (pipelineName, buildId) {
-              const url = "http://localhost:8088/pipelines/" + pipelineName + "/" + buildId;
+              const url = "./pipelines/" + pipelineName + "/" + buildId;
               console.log(url);
               this.$axios.get(url)
                 .then((response) => {

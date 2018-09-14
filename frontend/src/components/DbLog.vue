@@ -106,7 +106,7 @@
             },
 
             getPipelines: function(){
-              this.$axios.get("http://localhost:8088/pipelines", {
+              this.$axios.get("./pipelines", {
                 params: {
                   // page: this.currentPage,
                   // sex: this.sex,
@@ -132,7 +132,7 @@
                 //   pipelineName = "product-service";
                 console.log("getExecuteLog");
                 console.log(currentPipeline);
-                this.$axios.get("http://localhost:8088/pipelines/" + currentPipeline + "/executeLogs", {
+                this.$axios.get("./pipelines/" + currentPipeline + "/executeLogs", {
                 params: {
                   // page: this.currentPage,
                   // sex: this.sex,

@@ -131,7 +131,7 @@
             executePipeline: function(index, rows){
               // this.dialogFormVisible = true;
               const pipelineName = rows[index].name;
-              const exeUrl = "http://localhost:8088/pipelines/" + pipelineName;
+              const exeUrl = "./pipelines/" + pipelineName;
               this.$axios.post(exeUrl).then((response) => {
                 // this.form = response.data;
                 console.log(response);
@@ -164,7 +164,7 @@
               return data.format('YYYY-MM-DD HH:mm:ss');
             },
             getPipelines: function(){
-                this.$axios.get("http://localhost:8088/pipelines", {
+                this.$axios.get("./pipelines", {
                   params: {
                   }
                 }).then((response) => {
