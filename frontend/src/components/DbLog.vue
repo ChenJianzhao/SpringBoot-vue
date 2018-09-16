@@ -42,7 +42,10 @@
                     width="200">
                 <template scope="scope">
                     <el-button @click="showExecuteEntry(scope.$index, executeLogData)" type="primary" size="small" round>详情</el-button>
+                    <el-button v-if="executeLogData[scope.$index].state==='BUILDING'" @click="abortExecute(scope.$index, executeLogData)"
+                               type="primary" size="small" round>停止</el-button>
                 </template>
+
             </el-table-column>
         </el-table>
         <el-pagination class="pagination" layout="prev, pager, next" :total="total" :page-size="pageSize"
@@ -57,6 +60,7 @@
 <script>
     import Bus from '../eventBus'
     import DbModal from './DbModal.vue'
+    import common from "../../config/common";
 
     export default {
         data(){
@@ -132,7 +136,8 @@
                 //   pipelineName = "product-service";
                 console.log("getExecuteLog");
                 console.log(currentPipeline);
-                this.$axios.get("./pipelines/" + currentPipeline + "/executeLogs", {
+                console.log("getExecuteLog common.baseUrl: " + common.baseUrl);
+                this.$axios.get( common.baseUrl + "/pipelines/" + currentPipeline + "/executeLogs", {
                 params: {
                   // page: this.currentPage,
                   // sex: this.sex,
@@ -180,6 +185,21 @@
                 const pipelineName = rows[index].pipelineName;
                 this.$refs.entryTable.getExecuteEntry(pipelineName, buildId);
             },
+            abortExecute: function (index, rows) {
+                let pipelineName = rows[index].pipelineName;
+                this.$axios.post( common.baseUrl + "/pipelines/" + pipelineName + "/abort")
+                    .then((response) => {
+                      console.log(response)
+                    }).catch(error => {
+                    let data = error.response.data;
+                    if(data.code === 525) {
+                      this.$message({
+                        message: data.message,
+                        type: 'warning'
+                      });
+                    }
+                });
+            }
         }
     }
 </script>

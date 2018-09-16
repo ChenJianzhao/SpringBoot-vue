@@ -39,6 +39,7 @@
                     width="200">
                 <template scope="scope">
                     <el-button @click="executePipeline(scope.$index, pipelineData)" type="primary" size="small" round>运行</el-button>
+                    <el-button @click="showDetail(scope.$index, pipelineData)" type="primary" size="small" round>流水线信息</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -47,6 +48,7 @@
         </el-pagination>
 
         <db-log ref="logTable" :currentPipeline="currentPipeline"></db-log>
+        <db-detail ref="detailTable" :dialogFormVisible="dialogFormVisible" v-on:canclemodal="dialogVisible"> </db-detail>
     </div>
 
 </template>
@@ -55,6 +57,8 @@
     import Bus from '../eventBus'
     import DbModal from './DbModal.vue'
     import DbLog from './DbLog.vue'
+    import DbDetail from './DbDetail.vue'
+    import common from "../../config/common.js";
 
     export default {
         data(){
@@ -70,11 +74,13 @@
                 form: '',
                 pipelineData: [],
                 currentPipeline: '',
+                pipelineDetail: '',
             }
         },
         components: {
             DbModal,
-            DbLog
+            DbLog,
+            DbDetail
         },
         mounted () {
             // this.getCustomers();
@@ -131,7 +137,7 @@
             executePipeline: function(index, rows){
               // this.dialogFormVisible = true;
               const pipelineName = rows[index].name;
-              const exeUrl = "./pipelines/" + pipelineName;
+              const exeUrl = common.baseUrl + "/pipelines/" + pipelineName;
               this.$axios.post(exeUrl).then((response) => {
                 // this.form = response.data;
                 console.log(response);
@@ -147,11 +153,6 @@
                     message: data.message,
                     type: 'warning'
                   });
-                  // this.$message({
-                  //   message: data.message,
-                  //   type: 'warning'
-                  // });
-
                 }
 
               });
@@ -164,7 +165,8 @@
               return data.format('YYYY-MM-DD HH:mm:ss');
             },
             getPipelines: function(){
-                this.$axios.get("./pipelines", {
+                console.log("config.baseUrl: " + common.baseUrl);
+                this.$axios.get( common.baseUrl + "/pipelines", {
                   params: {
                   }
                 }).then((response) => {
@@ -218,6 +220,11 @@
                 return timeStr;
                 // return D+ "天" + h + "小时" + m + "分" + s + "秒";
               }
+            },
+            showDetail: function (index, rows) {
+                this.dialogFormVisible = true;
+                const pipelineName = rows[index].name;
+                this.$refs.detailTable.getPipelineDetail(pipelineName);
             },
         }
     }

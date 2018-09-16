@@ -43,6 +43,8 @@
 
 
 <script>
+    import common from "../../config/common";
+
     export default {
         data(){
             return {
@@ -83,7 +85,7 @@
               return (row.costTime / 1000) + ' s'
             },
             getExecuteEntry: function (pipelineName, buildId) {
-              const url = "./pipelines/" + pipelineName + "/" + buildId;
+              const url = common.baseUrl + "/pipelines/" + pipelineName + "/" + buildId;
               console.log(url);
               this.$axios.get(url)
                 .then((response) => {

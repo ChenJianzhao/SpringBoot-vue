@@ -11,14 +11,16 @@ module.exports = {
     productionSourceMap: true,
     productionGzip: false,
     productionGzipExtensions: ['js', 'css'],
-    bundleAnalyzerReport: process.env.npm_config_report
+    bundleAnalyzerReport: process.env.npm_config_report,
+    baseUrl: ""
   },
   dev: {
     env: require('./dev.env'),
-    port: 8088,
+    port: 8089,
     autoOpenBrowser: true,
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    cssSourceMap: false
+    cssSourceMap: false,
+    baseUrl: "http://localhost:8088"
   }
 }
