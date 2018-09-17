@@ -12,7 +12,7 @@ module.exports = {
     productionGzip: false,
     productionGzipExtensions: ['js', 'css'],
     bundleAnalyzerReport: process.env.npm_config_report,
-    baseUrl: ""
+    baseUrl: "."
   },
   dev: {
     env: require('./dev.env'),
