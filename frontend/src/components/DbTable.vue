@@ -30,9 +30,14 @@
           </el-table-column>
           <el-table-column
             prop="costTime"
-            label="上次持续时间"
-            width="200">
+            label="上次构建耗时"
+            width="150">
           </el-table-column>
+            <el-table-column
+                prop="totalCostTime"
+                label="上次总耗时"
+                width="150">
+            </el-table-column>
             <el-table-column
                     fixed="right"
                     label="操作"
@@ -68,12 +73,11 @@
                 total: 0,
                 pageSize: 10,
                 currentPage: 1,
-                sex: '',
-                email: '',
                 dialogFormVisible: false,
                 form: '',
                 pipelineData: [],
                 currentPipeline: '',
+                currentRow: '',
                 pipelineDetail: '',
             }
         },
@@ -100,42 +104,15 @@
             dialogVisible: function () {
                 this.dialogFormVisible = false;
             },
-            getCustomers: function () {
-                this.$axios.get(this.apiUrl, {
-                    params: {
-                        page: this.currentPage,
-                        sex: this.sex,
-                        email: this.email
-                    }
-                }).then((response) => {
-                    this.tableData = response.data.data.results;
-                    this.total = response.data.data.total;
-                    this.pageSize = response.data.data.count;
-                    console.log(response.data.data);
-                }).catch(function (response) {
-                    console.log(response)
-                });
-            },
             changePage: function (currentPage) {
                 this.currentPage = currentPage;
-                this.getCustomers()
-            },
-            editItem: function (index, rows) {
-                this.dialogFormVisible = true;
-                const itemId = rows[index].id;
-                const idurl = 'http://127.0.0.1:8000/api/persons/detail/' + itemId;
-                this.$axios.get(idurl).then((response) => {
-                    this.form = response.data;
-                }).catch(function (response) {
-                    console.log(response)
-                });
+                // this.getCustomers()
             },
             formatter(row, column) {
               let data = this.$moment(row.create_datetime, this.$moment.ISO_8601);
               return data.format('YYYY-MM-DD')
             },
             executePipeline: function(index, rows){
-              // this.dialogFormVisible = true;
               const pipelineName = rows[index].name;
               const exeUrl = common.baseUrl + "/pipelines/" + pipelineName;
               this.$axios.post(exeUrl).then((response) => {
@@ -156,6 +133,11 @@
                 }
 
               });
+
+                setTimeout( () =>{
+                    this.handleCurrentChange(this.currentRow);
+                }, 3000);
+
             },
             dateformatter(time) {
               // console.log(time);
@@ -176,24 +158,19 @@
                     console.log(this.pipelineData);
 
                     for(let i in this.pipelineData) {
-                      let log = this.pipelineData[i];
-                      log.costTime = this.millSecondFormat(log.costTime);
+                        let log = this.pipelineData[i];
+                        log.costTime = this.millSecondFormat(log.costTime);
+                        log.totalCostTime = this.millSecondFormat(log.totalCostTime);
                     }
 
-                  this.setCurrent(this.pipelineData[0]);
+                    this.$refs.singleTable.setCurrentRow(this.pipelineData[0]);
                 }).catch(function (response) {
                   console.log(response)
                 });
             }
             ,
-            timeFormatter(row, column) {
-              return (row.costTime / 1000) + ' s'
-            },
-            setCurrent(row) {
-              // console.log(row);
-              this.$refs.singleTable.setCurrentRow(row);
-            },
             handleCurrentChange(currentRow, oldCurrentRow) {
+                this.currentRow = currentRow;
               this.currentPipeline = currentRow.name;
               console.log("handleCurrentChange: " + this.currentPipeline);
               this.$refs.logTable.getExecuteLog(this.currentPipeline);
@@ -212,9 +189,9 @@
                 let timeStr = '';
                 if( D!==0 )
                   timeStr = timeStr + D + "天";
-                if( D!==0 )
+                if( h!==0 )
                   timeStr = timeStr + h + "小时";
-                if( D!==0 )
+                if( m!==0 )
                   timeStr = timeStr + m + "分";
                 timeStr = timeStr + s + "秒";
                 return timeStr;

@@ -103,11 +103,11 @@
               let data = this.$moment(row.createTime);
               return data.format('YYYY-MM-DD HH:mm:ss')
             },
-
-            dateformatter(row, column) {
-              let data = this.$moment(row.createTime, this.$moment.ISO_8601);
-              return data.format('YYYY-MM-DD HH:mm:ss')
-            },
+            //
+            // dateformatter(row, column) {
+            //   let data = this.$moment(row.createTime, this.$moment.ISO_8601);
+            //   return data.format('YYYY-MM-DD HH:mm:ss')
+            // },
 
             getPipelines: function(){
               this.$axios.get("./pipelines", {
@@ -170,9 +170,9 @@
                     let timeStr = '';
                     if( D!==0 )
                       timeStr = timeStr + D + "天";
-                    if( D!==0 )
+                    if( h!==0 )
                       timeStr = timeStr + h + "小时";
-                    if( D!==0 )
+                    if( m!==0 )
                       timeStr = timeStr + m + "分";
                     timeStr = timeStr + s + "秒";
                     return timeStr;

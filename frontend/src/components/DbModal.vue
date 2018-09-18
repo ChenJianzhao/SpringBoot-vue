@@ -1,5 +1,5 @@
 <template>
-    <el-dialog title="执行记录详情" v-model="dialogFormVisible" :close-on-click-modal="false" :show-close="false"  width="80%">
+    <el-dialog title="执行记录详情" v-model="dialogFormVisible" :close-on-click-modal="false" :show-close="false"  width="90%">
         <el-table
         :data="executeEntryData"
         border
@@ -18,8 +18,14 @@
           <el-table-column
             prop="state"
             label="状态"
-            width="150">
+            width="120">
           </el-table-column>
+            <el-table-column
+                prop="createTime"
+                label="开始"
+                width="200"
+                :formatter="formatter">
+            </el-table-column>
           <el-table-column
             prop="costTime"
             label="耗时"
@@ -129,7 +135,11 @@
             urlFormatter: function (row, column) {
               return this.$createElement('a', row.jenkinsBuildURL);
                // return "<a href=\""+ url +"\">"+ url +"</a>"
-            }
+            },
+            formatter(row, column) {
+                let data = this.$moment(row.createTime);
+                return data.format('YYYY-MM-DD HH:mm:ss')
+            },
         }
 
     }

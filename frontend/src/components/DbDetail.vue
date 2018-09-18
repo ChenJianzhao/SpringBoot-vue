@@ -23,7 +23,7 @@
         <el-table
             :data="this.pipelineDetail.stages"
             border
-            style="width: 100%"
+            style="width: 80%"
             class="table">
             <el-table-column
                 prop="seq"
