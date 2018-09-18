@@ -10,7 +10,7 @@
           <el-table-column
             prop="name"
             label="流水线"
-            width="300">
+            width="200">
           </el-table-column>
           <el-table-column
             prop="lastSuccessTime"
@@ -31,12 +31,17 @@
           <el-table-column
             prop="costTime"
             label="上次构建耗时"
-            width="150">
+            width="130">
           </el-table-column>
             <el-table-column
                 prop="totalCostTime"
                 label="上次总耗时"
-                width="150">
+                width="130">
+            </el-table-column>
+            <el-table-column
+                prop="totalCostTime"
+                label="进度"
+                width="300">
             </el-table-column>
             <el-table-column
                     fixed="right"
@@ -54,6 +59,7 @@
 
         <db-log ref="logTable" :currentPipeline="currentPipeline"></db-log>
         <db-detail ref="detailTable" :dialogFormVisible="dialogFormVisible" v-on:canclemodal="dialogVisible"> </db-detail>
+        <db-param ref="paramTable" :dialogParamVisible="dialogParamVisible" v-on:canclemodal="dialogParamHide"> </db-param>
     </div>
 
 </template>
@@ -63,6 +69,7 @@
     import DbModal from './DbModal.vue'
     import DbLog from './DbLog.vue'
     import DbDetail from './DbDetail.vue'
+    import DbParam from './DbParam.vue'
     import common from "../../config/common.js";
 
     export default {
@@ -74,6 +81,7 @@
                 pageSize: 10,
                 currentPage: 1,
                 dialogFormVisible: false,
+                dialogParamVisible: false,
                 form: '',
                 pipelineData: [],
                 currentPipeline: '',
@@ -84,7 +92,8 @@
         components: {
             DbModal,
             DbLog,
-            DbDetail
+            DbDetail,
+            DbParam
         },
         mounted () {
             // this.getCustomers();
@@ -104,6 +113,9 @@
             dialogVisible: function () {
                 this.dialogFormVisible = false;
             },
+            dialogParamHide: function () {
+                this.dialogParamVisible = false;
+            },
             changePage: function (currentPage) {
                 this.currentPage = currentPage;
                 // this.getCustomers()
@@ -111,6 +123,11 @@
             formatter(row, column) {
               let data = this.$moment(row.create_datetime, this.$moment.ISO_8601);
               return data.format('YYYY-MM-DD')
+            },
+            executePipeline: function(index, rows){
+                this.dialogParamVisible = true;
+                const pipelineName = rows[index].name;
+                this.$refs.paramTable.getBuildParam(pipelineName);
             },
             executePipeline: function(index, rows){
               const pipelineName = rows[index].name;
