@@ -5,7 +5,7 @@
             <el-col :span="4" class="menu">
                 <db-sidebar></db-sidebar>
             </el-col>
-            <el-col :span="16" class="content">
+            <el-col :span="18" class="content">
                 <!--<db-filterinput></db-filterinput>-->
                 <db-table></db-table>
 

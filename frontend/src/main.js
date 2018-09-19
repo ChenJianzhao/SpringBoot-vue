@@ -24,6 +24,7 @@ import {
 import App from './App.vue'
 import 'element-ui/lib/theme-default/index.css'
 // import 'element-ui/lib/theme-chalk/index.css'
+// import 'element-theme-chalk/lib/index.css'
 import lang from 'element-ui/lib/locale/lang/en'
 import locale from 'element-ui/lib/locale'
 

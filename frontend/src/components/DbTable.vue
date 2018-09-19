@@ -59,7 +59,7 @@
 
         <db-log ref="logTable" :currentPipeline="currentPipeline"></db-log>
         <db-detail ref="detailTable" :dialogFormVisible="dialogFormVisible" v-on:canclemodal="dialogVisible"> </db-detail>
-        <db-param ref="paramTable" :dialogParamVisible="dialogParamVisible" v-on:canclemodal="dialogParamHide"> </db-param>
+        <!--<db-param ref="paramTable" :dialogParamVisible="dialogParamVisible" v-on:canclemodal="dialogParamHide"> </db-param>-->
     </div>
 
 </template>

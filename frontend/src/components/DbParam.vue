@@ -1,67 +1,67 @@
 <template>
     <el-dialog title="构建参数" v-model="dialogParamVisible" :close-on-click-modal="false" :show-close="false">
-        <el-form :model="form">
-            <!--<el-form-item label="item_id" :label-width="formLabelWidth">-->
-                <!--<el-input :disabled="true" v-model="form.id" auto-complete="off"></el-input>-->
-            <!--</el-form-item>-->
-            <!--<el-form-item label="username" :label-width="formLabelWidth">-->
-                <!--<el-input :disabled="true" v-model="form.username" auto-complete="off"></el-input>-->
-            <!--</el-form-item>-->
-
-            <!--<el-form-item label="email" :label-width="formLabelWidth">-->
-                <!--<el-input :disabled="true" v-model="form.email" auto-complete="off"></el-input>-->
-            <!--</el-form-item>-->
-
-            <!--<el-form-item label="phone" :label-width="formLabelWidth">-->
-                <!--<el-input v-model="form.phone" auto-complete="off"></el-input>-->
-            <!--</el-form-item>-->
-            <!--<el-form-item label="sex" :label-width="formLabelWidth">-->
-                <!--<el-input :disabled="true" v-model="form.sex" auto-complete="off"></el-input>-->
-            <!--</el-form-item>-->
-            <!--<el-form-item label="zone" :label-width="formLabelWidth">-->
-                <!--<el-input v-model="form.zone" auto-complete="off"></el-input>-->
-            <!--</el-form-item>-->
-
+        <el-form v-for="(item, index) in buildParameters" :key="item.name" >
+            <el-form-item :label="item.displayName" :label-width="formLabelWidth">
+                <el-input v-if="item.dataType === 2" v-model='item.value' placeholder="请输入内容"></el-input>
+                <el-select  v-if="item.dataType === 3" v-model='item.value' placeholder="请选择" value-key='item.value'>
+                    <el-option
+                        v-for="option in item.values"
+                        :key="option.value"
+                        :label="option.label"
+                        :value="option.value">
+                    </el-option>
+                </el-select>
+            </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
-            <el-button :plain="true" type="danger" v-on:click="canclemodal">Cancel</el-button>
-            <el-button :plain="true" @click="updateForm(form)">Save</el-button>
+            <el-button :plain="true" type="danger" v-on:click="canclemodal">取消</el-button>
+            <el-button  @click="executePipeline" type="primary">运行</el-button>
         </div>
     </el-dialog>
 </template>
 
 
 <script>
+    import common from "../../config/common";
+
     export default {
         data(){
             return {
                 formLabelWidth: '120px',
+                currentPipeline: '',
+                buildParameters: [],
+                selectItem:''
             }
         },
-        props: ['dialogParamVisible', 'form'],
+        props: ['dialogParamVisible', 'parameters'],
 
         methods: {
-            getBuildParam: function (formName) {
-                let itemId = formName.id;
-                let phone = formName.phone;
-                let zone = formName.zone;
-                this.$axios.put('http://127.0.0.1:8000/api/persons/detail/' + itemId, {
-                    phone: phone,
-                    zone: zone
-                })
-                    .then(function (response) {
-                        console.log(response);
-                        this.form = response.data;
-
-                    })
-                    .catch(function (error) {
-                        console.log(error);
-                    });
-                location.reload();
+            showParameters: function (buildParameters) {
+                this.buildParameters = buildParameters;
             },
             canclemodal: function () {
                 this.$emit('canclemodal');
-            }
+            },
+            executePipeline: function () {
+                console.log(this.buildParameters);
+                let paramObj = this.transferParam(this.buildParameters);
+                this.$axios.post( common.baseUrl + "/pipelines/" + this.currentPipeline, {
+                    params: {
+                        paramObj
+                    }
+                }).then((response) => {
+                        console.log(response.data);
+                    }).catch(error => {
+                    console.log(error.date);
+                });
+            },
+            transferParam: function(buildParameters) {
+                let paramObj = new Map();
+                for(let param in buildParameters) {
+                    paramObj.put(param.name, param.value);
+                }
+                return paramObj;
+            },
         }
 
     }

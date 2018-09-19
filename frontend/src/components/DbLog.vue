@@ -1,6 +1,7 @@
 <template>
     <div>
-        <div></div>
+        <db-process ref="processBar"></db-process>
+
         <el-table v-model="currentPipeline"
                 :data="executeLogData"
                 border
@@ -60,6 +61,7 @@
 <script>
     import Bus from '../eventBus'
     import DbModal from './DbModal.vue'
+    import DbProcess from './DbProcess.vue'
     import common from "../../config/common";
 
     export default {
@@ -74,11 +76,12 @@
                 executeEntryData: '',
                 pipelineData: [],
                 executeLogData: [],
+                lastExecuteState: '',
             }
         },
         props: ['currentPipeline'],
         components: {
-            DbModal
+            DbModal,DbProcess
         },
         mounted () {
             console.log("DbLog mounted: " + this.currentPipeline);
@@ -155,6 +158,8 @@
                 }).catch(function (response) {
                   console.log(response)
                 });
+
+                this.$refs.processBar.getExecuteState(currentPipeline);
             },
             millSecondFormat: function(time) {
                 if (!time) {
@@ -199,7 +204,7 @@
                       });
                     }
                 });
-            }
+            },
         }
     }
 </script>

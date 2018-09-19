@@ -7,7 +7,7 @@
     active-text-color="#ffd04b">
     <el-submenu index="1">
       <template slot="title">
-        <i class="el-icon-location"></i>
+        <i class="el-icon-menu"></i>
         <span>流水线</span>
       </template>
     </el-submenu>
