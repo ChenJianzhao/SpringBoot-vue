@@ -28,12 +28,11 @@
         data(){
             return {
                 formLabelWidth: '120px',
-                currentPipeline: '',
                 buildParameters: [],
                 selectItem:''
             }
         },
-        props: ['dialogParamVisible', 'parameters'],
+        props: ['dialogParamVisible', 'parameters', 'currentPipeline'],
 
         methods: {
             showParameters: function (buildParameters) {
@@ -43,23 +42,34 @@
                 this.$emit('canclemodal');
             },
             executePipeline: function () {
-                console.log(this.buildParameters);
+                // console.log(this.buildParameters);
                 let paramObj = this.transferParam(this.buildParameters);
                 this.$axios.post( common.baseUrl + "/pipelines/" + this.currentPipeline, {
                     params: {
                         paramObj
                     }
                 }).then((response) => {
-                        console.log(response.data);
+                    this.$emit('canclemodal');
+                    this.$message({
+                        message: "流水线运行开始",
+                        type: 'success'
+                    });
                     }).catch(error => {
-                    console.log(error.date);
+                    let data = error.response.data;
+                    if(data.code === 525){
+                        this.$message({
+                            message: data.message,
+                            type: 'warning'
+                        });
+                    }
                 });
             },
             transferParam: function(buildParameters) {
                 let paramObj = new Map();
-                for(let param in buildParameters) {
-                    paramObj.put(param.name, param.value);
-                }
+                buildParameters.forEach( param => {
+                    paramObj.set(param.name, param.value);
+                });
+                // console.log(paramObj);
                 return paramObj;
             },
         }

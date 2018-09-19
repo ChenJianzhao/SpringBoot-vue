@@ -48,7 +48,8 @@
                     label="操作"
                     width="200">
                 <template scope="scope">
-                    <el-button @click="executePipeline(scope.$index, pipelineData)" type="primary" size="small" round>运行</el-button>
+                    <!--<el-button @click="executePipeline(scope.$index, pipelineData)" type="primary" size="small" round>运行</el-button>-->
+                    <el-button @click="showParamDialog()" type="primary" size="small" round>运行</el-button>
                     <el-button @click="showDetail(scope.$index, pipelineData)" type="primary" size="small" round>流水线信息</el-button>
                 </template>
             </el-table-column>
@@ -59,7 +60,8 @@
 
         <db-log ref="logTable" :currentPipeline="currentPipeline"></db-log>
         <db-detail ref="detailTable" :dialogFormVisible="dialogFormVisible" v-on:canclemodal="dialogVisible"> </db-detail>
-        <!--<db-param ref="paramTable" :dialogParamVisible="dialogParamVisible" v-on:canclemodal="dialogParamHide"> </db-param>-->
+        <db-param ref="paramForm" :dialogParamVisible="dialogParamVisible" :parameters="buildParameters" :currentPipeline="currentPipeline"
+                  v-on:canclemodal="dialogParamHide"> </db-param>
     </div>
 
 </template>
@@ -87,6 +89,7 @@
                 currentPipeline: '',
                 currentRow: '',
                 pipelineDetail: '',
+                buildParameters: '',
             }
         },
         components: {
@@ -124,38 +127,38 @@
               let data = this.$moment(row.create_datetime, this.$moment.ISO_8601);
               return data.format('YYYY-MM-DD')
             },
-            executePipeline: function(index, rows){
-                this.dialogParamVisible = true;
-                const pipelineName = rows[index].name;
-                this.$refs.paramTable.getBuildParam(pipelineName);
-            },
-            executePipeline: function(index, rows){
-              const pipelineName = rows[index].name;
-              const exeUrl = common.baseUrl + "/pipelines/" + pipelineName;
-              this.$axios.post(exeUrl).then((response) => {
-                // this.form = response.data;
-                console.log(response);
-                this.$message({
-                  message: "流水线运行开始",
-                  type: 'success'
-                });
-              }).catch(error => {
-                console.log(error.response);
-                let data = error.response.data;
-                if(data.code === 525){
-                  this.$message({
-                    message: data.message,
-                    type: 'warning'
-                  });
-                }
-
-              });
-
-                setTimeout( () =>{
-                    this.handleCurrentChange(this.currentRow);
-                }, 3000);
-
-            },
+            // executePipeline: function(index, rows){
+            //     this.dialogParamVisible = true;
+            //     const pipelineName = rows[index].name;
+            //     this.$refs.paramTable.getBuildParam(pipelineName);
+            // },
+            // executePipeline: function(index, rows){
+            //   const pipelineName = rows[index].name;
+            //   const exeUrl = common.baseUrl + "/pipelines/" + pipelineName;
+            //   this.$axios.post(exeUrl).then((response) => {
+            //     // this.form = response.data;
+            //     console.log(response);
+            //     this.$message({
+            //       message: "流水线运行开始",
+            //       type: 'success'
+            //     });
+            //   }).catch(error => {
+            //     console.log(error.response);
+            //     let data = error.response.data;
+            //     if(data.code === 525){
+            //       this.$message({
+            //         message: data.message,
+            //         type: 'warning'
+            //       });
+            //     }
+            //
+            //   });
+            //
+            //     setTimeout( () =>{
+            //         this.handleCurrentChange(this.currentRow);
+            //     }, 3000);
+            //
+            // },
             dateformatter(time) {
               // console.log(time);
               if(time===null)
@@ -219,6 +222,83 @@
                 this.dialogFormVisible = true;
                 const pipelineName = rows[index].name;
                 this.$refs.detailTable.getPipelineDetail(pipelineName);
+            },
+            showParamDialog: function () {
+                // let buildParameters = this.getBuildParameters();
+                this.$axios.get( common.baseUrl + "/pipelines/" + this.currentPipeline + "/buildParameters")
+                    .then((response) => {
+                        this.buildParameters = response.data;
+                        console.log(this.buildParameters);
+                        for(let i in this.buildParameters) {
+                            let param = this.buildParameters[i];
+                            param.value = param.defaultValue  != null ? param.defaultValue: param.values != null ? param.values : '' ;
+                            console.log(param);
+                            if(param.dataType === 3) {
+                                let values = param.values.split(',');
+                                let options = [];
+                                for( let index in values) {
+                                    options[index] = {'label': values[index].toString(), 'value': values[index].toString()};
+                                }
+                                param.values = options;
+                                console.log(param.values);
+                                param.value = options[0].value;
+                            }
+                        }
+                        console.log(this.buildParameters);
+                        if(this.buildParameters .length !==0) {
+                            console.log("show dialogParamVisible");
+                            this.$refs.paramForm.showParameters(this.buildParameters);
+                            this.dialogParamVisible = true;
+                        }else {
+                            this.dialogParamVisible = false;
+                            this.executePipeline();
+                        }
+
+                    }).catch(error => {
+                    console.log(error.date);
+                    let data = error.response.data;
+                    if(data.code === 525){
+                        this.$message({
+                            message: data.message,
+                            type: 'warning'
+                        });
+                    }
+                });
+            },
+            executePipeline: function () {
+                // console.log(this.buildParameters);
+                let paramObj = this.transferParam(this.buildParameters);
+                this.$axios.post( common.baseUrl + "/pipelines/" + this.currentPipeline, {
+                    params: {
+                        paramObj
+                    }
+                }).then((response) => {
+                    this.$emit('canclemodal');
+                    this.$message({
+                        message: "流水线运行开始",
+                        type: 'success'
+                    });
+                }).catch(error => {
+                    let data = error.response.data;
+                    if(data.code === 525){
+                        this.$message({
+                            message: data.message,
+                            type: 'warning'
+                        });
+                    }
+                });
+
+                setTimeout( () =>{
+                    this.handleCurrentChange(this.currentRow);
+                }, 3000);
+            },
+            transferParam: function(buildParameters) {
+                let paramObj = new Map();
+                buildParameters.forEach( param => {
+                    paramObj.set(param.name, param.value);
+                });
+                // console.log(paramObj);
+                return paramObj;
             },
         }
     }

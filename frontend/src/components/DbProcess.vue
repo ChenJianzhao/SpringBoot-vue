@@ -13,7 +13,8 @@
             <el-button @click="executePipeline(scope.$index, pipelineData)" type="primary"  round>停止</el-button>
         </div>
 
-        <db-param ref="paramForm" :dialogParamVisible="dialogParamVisible" :parameters="buildParameters" v-on:canclemodal="dialogParamHide"> </db-param>
+        <db-param ref="paramForm" :dialogParamVisible="dialogParamVisible" :parameters="buildParameters" :currentPipeline="currentPipeline"
+                  v-on:canclemodal="dialogParamHide"> </db-param>
     </div>
 </template>
 
@@ -73,16 +74,16 @@
                     console.log(response)
                 });
             },
-            getBuildParameters: function () {
-                this.$axios.get( common.baseUrl + "/pipelines/" + this.currentPipeline + "/buildParameters")
-                    .then((response) => {
-                        this.buildParameters = response.data;
-                        console.log(this.buildParameters);
-                    }).catch(error => {
-                        console.log(error.date);
-                });
-                return this.buildParameters;
-            },
+            // getBuildParameters: function () {
+            //     this.$axios.get( common.baseUrl + "/pipelines/" + this.currentPipeline + "/buildParameters")
+            //         .then((response) => {
+            //             this.buildParameters = response.data;
+            //             console.log(this.buildParameters);
+            //         }).catch(error => {
+            //             console.log(error.date);
+            //     });
+            //     return this.buildParameters;
+            // },
             showParamDialog: function () {
                 // let buildParameters = this.getBuildParameters();
                 this.$axios.get( common.baseUrl + "/pipelines/" + this.currentPipeline + "/buildParameters")
@@ -115,6 +116,13 @@
 
                     }).catch(error => {
                     console.log(error.date);
+                    let data = error.response.data;
+                    if(data.code === 525){
+                        this.$message({
+                            message: data.message,
+                            type: 'warning'
+                        });
+                    }
                 });
             }
         }
