@@ -60,7 +60,7 @@
 
         <db-log ref="logTable" :currentPipeline="currentPipeline"></db-log>
         <db-detail ref="detailTable" :dialogFormVisible="dialogFormVisible" v-on:canclemodal="dialogVisible"> </db-detail>
-        <db-param ref="paramForm" :dialogParamVisible="dialogParamVisible" :parameters="buildParameters" :currentPipeline="currentPipeline"
+        <db-param ref="paramForm" :dialogParamVisible="dialogParamVisible" :buildParameters="buildParameters" :currentPipeline="currentPipeline"
                   v-on:canclemodal="dialogParamHide"> </db-param>
     </div>
 
@@ -99,7 +99,6 @@
             DbParam
         },
         mounted () {
-            // this.getCustomers();
             this.getPipelines();
             Bus.$on('filterResultData', (data) => {
                 this.tableData = data.results;
@@ -127,38 +126,6 @@
               let data = this.$moment(row.create_datetime, this.$moment.ISO_8601);
               return data.format('YYYY-MM-DD')
             },
-            // executePipeline: function(index, rows){
-            //     this.dialogParamVisible = true;
-            //     const pipelineName = rows[index].name;
-            //     this.$refs.paramTable.getBuildParam(pipelineName);
-            // },
-            // executePipeline: function(index, rows){
-            //   const pipelineName = rows[index].name;
-            //   const exeUrl = common.baseUrl + "/pipelines/" + pipelineName;
-            //   this.$axios.post(exeUrl).then((response) => {
-            //     // this.form = response.data;
-            //     console.log(response);
-            //     this.$message({
-            //       message: "流水线运行开始",
-            //       type: 'success'
-            //     });
-            //   }).catch(error => {
-            //     console.log(error.response);
-            //     let data = error.response.data;
-            //     if(data.code === 525){
-            //       this.$message({
-            //         message: data.message,
-            //         type: 'warning'
-            //       });
-            //     }
-            //
-            //   });
-            //
-            //     setTimeout( () =>{
-            //         this.handleCurrentChange(this.currentRow);
-            //     }, 3000);
-            //
-            // },
             dateformatter(time) {
               // console.log(time);
               if(time===null)
@@ -167,7 +134,7 @@
               return data.format('YYYY-MM-DD HH:mm:ss');
             },
             getPipelines: function(){
-                console.log("config.baseUrl: " + common.baseUrl);
+                console.log('------getPipelines------');
                 this.$axios.get( common.baseUrl + "/pipelines", {
                   params: {
                   }
@@ -175,8 +142,6 @@
                     this.pipelineData = response.data;
                     // this.total = response.data.data.total;
                     // this.pageSize = response.data.data.count;
-                    console.log(this.pipelineData);
-
                     for(let i in this.pipelineData) {
                         let log = this.pipelineData[i];
                         log.costTime = this.millSecondFormat(log.costTime);
@@ -219,35 +184,31 @@
               }
             },
             showDetail: function (index, rows) {
+                console.log('------showDetail------');
                 this.dialogFormVisible = true;
                 const pipelineName = rows[index].name;
                 this.$refs.detailTable.getPipelineDetail(pipelineName);
             },
             showParamDialog: function () {
-                // let buildParameters = this.getBuildParameters();
+                console.log('------showParamDialog------');
                 this.$axios.get( common.baseUrl + "/pipelines/" + this.currentPipeline + "/buildParameters")
                     .then((response) => {
                         this.buildParameters = response.data;
-                        console.log(this.buildParameters);
-                        for(let i in this.buildParameters) {
-                            let param = this.buildParameters[i];
+                        this.buildParameters.forEach(param => {
                             param.value = param.defaultValue  != null ? param.defaultValue: param.values != null ? param.values : '' ;
-                            console.log(param);
                             if(param.dataType === 3) {
                                 let values = param.values.split(',');
                                 let options = [];
-                                for( let index in values) {
-                                    options[index] = {'label': values[index].toString(), 'value': values[index].toString()};
-                                }
+                                values.forEach(value => {
+                                    options.push({'label': value.toString(), 'value': value.toString()});
+                                });
                                 param.values = options;
-                                console.log(param.values);
                                 param.value = options[0].value;
                             }
-                        }
+                        });
                         console.log(this.buildParameters);
                         if(this.buildParameters .length !==0) {
                             console.log("show dialogParamVisible");
-                            this.$refs.paramForm.showParameters(this.buildParameters);
                             this.dialogParamVisible = true;
                         }else {
                             this.dialogParamVisible = false;
@@ -255,15 +216,14 @@
                         }
 
                     }).catch(error => {
-                    console.log(error.date);
-                    let data = error.response.data;
-                    if(data.code === 525){
-                        this.$message({
-                            message: data.message,
-                            type: 'warning'
-                        });
-                    }
-                });
+                        let data = error.response.data;
+                        if(data.code === 525){
+                            this.$message({
+                                message: data.message,
+                                type: 'warning'
+                            });
+                        }
+                    });
             },
             executePipeline: function () {
                 // console.log(this.buildParameters);

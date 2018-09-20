@@ -28,16 +28,16 @@
         data(){
             return {
                 formLabelWidth: '120px',
-                buildParameters: [],
+                // buildParameters: [],
                 selectItem:''
             }
         },
-        props: ['dialogParamVisible', 'parameters', 'currentPipeline'],
+        props: ['dialogParamVisible', 'buildParameters', 'currentPipeline'],
 
         methods: {
-            showParameters: function (buildParameters) {
-                this.buildParameters = buildParameters;
-            },
+            // showParameters: function (buildParameters) {
+            //     this.buildParameters = buildParameters;
+            // },
             canclemodal: function () {
                 this.$emit('canclemodal');
             },
@@ -69,7 +69,7 @@
                 buildParameters.forEach( param => {
                     paramObj.set(param.name, param.value);
                 });
-                // console.log(paramObj);
+                console.log(paramObj);
                 return paramObj;
             },
         }

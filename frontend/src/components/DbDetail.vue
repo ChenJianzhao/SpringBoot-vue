@@ -76,12 +76,11 @@
             getPipelineDetail: function (pipelineName) {
                 this.$axios.get( common.baseUrl + '/pipelines/' + pipelineName )
                     .then((response) => {
-                        console.log(response);
                         this.pipelineDetail = response.data;
                         console.log(this.pipelineDetail);
                     })
-                    .catch(function (error) {
-                        console.log(error);
+                    .catch(error => {
+                        console.log(error.data);
                     });
             },
             canclemodal: function () {

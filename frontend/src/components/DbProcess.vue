@@ -13,7 +13,7 @@
             <el-button @click="executePipeline(scope.$index, pipelineData)" type="primary"  round>停止</el-button>
         </div>
 
-        <db-param ref="paramForm" :dialogParamVisible="dialogParamVisible" :parameters="buildParameters" :currentPipeline="currentPipeline"
+        <db-param ref="paramForm" :dialogParamVisible="dialogParamVisible" :buildParameters="buildParameters" :currentPipeline="currentPipeline"
                   v-on:canclemodal="dialogParamHide"> </db-param>
     </div>
 </template>
@@ -42,24 +42,6 @@
             dialogParamHide: function () {
                 this.dialogParamVisible = false;
             },
-            updateForm: function (formName) {
-                let itemId = formName.id;
-                let phone = formName.phone;
-                let zone = formName.zone;
-                this.$axios.put('http://127.0.0.1:8000/api/persons/detail/' + itemId, {
-                    phone: phone,
-                    zone: zone
-                })
-                    .then(function (response) {
-                        console.log(response);
-                        this.form = response.data;
-
-                    })
-                    .catch(function (error) {
-                        console.log(error);
-                    });
-                location.reload();
-            },
             canclemodal: function () {
                 this.$emit('canclemodal');
             },
@@ -74,55 +56,40 @@
                     console.log(response)
                 });
             },
-            // getBuildParameters: function () {
-            //     this.$axios.get( common.baseUrl + "/pipelines/" + this.currentPipeline + "/buildParameters")
-            //         .then((response) => {
-            //             this.buildParameters = response.data;
-            //             console.log(this.buildParameters);
-            //         }).catch(error => {
-            //             console.log(error.date);
-            //     });
-            //     return this.buildParameters;
-            // },
             showParamDialog: function () {
-                // let buildParameters = this.getBuildParameters();
+                console.log('------showParamDialog------');
                 this.$axios.get( common.baseUrl + "/pipelines/" + this.currentPipeline + "/buildParameters")
                     .then((response) => {
                         this.buildParameters = response.data;
-                        console.log(this.buildParameters);
-                        for(let i in this.buildParameters) {
-                            let param = this.buildParameters[i];
+                        this.buildParameters.forEach(param => {
                             param.value = param.defaultValue  != null ? param.defaultValue: param.values != null ? param.values : '' ;
-                            console.log(param);
                             if(param.dataType === 3) {
                                 let values = param.values.split(',');
                                 let options = [];
-                                for( let index in values) {
-                                    options[index] = {'label': values[index].toString(), 'value': values[index].toString()};
-                                }
+                                values.forEach(value => {
+                                    options.push({'label': value.toString(), 'value': value.toString()});
+                                });
                                 param.values = options;
-                                console.log(param.values);
                                 param.value = options[0].value;
                             }
-                        }
+                        });
                         console.log(this.buildParameters);
                         if(this.buildParameters .length !==0) {
                             console.log("show dialogParamVisible");
-                            this.$refs.paramForm.showParameters(this.buildParameters);
                             this.dialogParamVisible = true;
                         }else {
                             this.dialogParamVisible = false;
                         }
 
                     }).catch(error => {
-                    console.log(error.date);
-                    let data = error.response.data;
-                    if(data.code === 525){
-                        this.$message({
-                            message: data.message,
-                            type: 'warning'
-                        });
-                    }
+                        console.log(error.data);
+                        let data = error.response.data;
+                        if(data.code === 525){
+                            this.$message({
+                                message: data.message,
+                                type: 'warning'
+                            });
+                        }
                 });
             }
         }

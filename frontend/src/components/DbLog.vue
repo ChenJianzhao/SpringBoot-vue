@@ -84,7 +84,6 @@
             DbModal,DbProcess
         },
         mounted () {
-            console.log("DbLog mounted: " + this.currentPipeline);
             Bus.$on('filterResultData', (data) => {
                 this.total = data.total_pages;
                 this.pageSize = data.count;
@@ -135,22 +134,10 @@
               return (row.costTime / 1000) + ' s'
             },
             getExecuteLog: function (currentPipeline) {
-                // if(pipelineName===undefined)
-                //   pipelineName = "product-service";
-                console.log("getExecuteLog");
-                console.log(currentPipeline);
-                console.log("getExecuteLog common.baseUrl: " + common.baseUrl);
-                this.$axios.get( common.baseUrl + "/pipelines/" + currentPipeline + "/executeLogs", {
-                params: {
-                  // page: this.currentPage,
-                  // sex: this.sex,
-                  // email: this.email
-                }
-                }).then((response) => {
+                this.$axios.get( common.baseUrl + "/pipelines/" + currentPipeline + "/executeLogs")
+                    .then((response) => {
                     this.executeLogData = response.data;
                     console.log("------getExecuteLog------");
-                    console.log(this.executeLogData);
-
                     for(let i in this.executeLogData) {
                       let log = this.executeLogData[i];
                       log.costTime = this.millSecondFormat(log.costTime);
