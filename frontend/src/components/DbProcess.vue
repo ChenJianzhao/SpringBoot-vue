@@ -3,14 +3,14 @@
         <div id="nav">
         <!--<lable>执行进度</lable>-->
             <ul>
-                <li v-for="item in lastExecuteState">
+                <li v-for="item in lastExecuteState.executeStateEntries">
                 <!--{{item.state}}-->
-                    <el-button v-bind:disabled="item.state!==null" type="info" size="small" round>{{item.displayName}}</el-button>
+                    <el-button v-bind:disabled="!(item.state==null && isBuilding)" type="info" size="small" round>{{item.displayName}}</el-button>
                     <span class="el-icon-arrow-right"></span>
                 </li>
             </ul>
-            <el-button @click="showParamDialog" type="primary"  round >继续</el-button>
-            <el-button @click="executePipeline(scope.$index, pipelineData)" type="primary"  round>停止</el-button>
+            <el-button v-if="isBuilding" @click="showParamDialog" type="primary"  round >继续</el-button>
+            <el-button v-if="isBuilding" @click="stopPipeline" type="primary"  round>停止</el-button>
         </div>
 
         <db-param ref="paramForm" :dialogParamVisible="dialogParamVisible" :buildParameters="buildParameters" :currentPipeline="currentPipeline"
@@ -29,8 +29,24 @@
                 formLabelWidth: '120px',
                 lastExecuteState: '',
                 currentPipeline: '',
+                executeStateEntries: [],
                 buildParameters: [],
                 dialogParamVisible: false,
+            }
+        },
+        computed: {
+            isBuilding: function () {
+                let isBuilding = false;
+                console.log(this.lastExecuteState);
+                if(this.lastExecuteState.currentStageIndex === -1)
+                    isBuilding = false;
+                else {
+                    this.executeStateEntries.forEach(stateItem => {
+                        if(stateItem.state==null)
+                            isBuilding = true;
+                    });
+                }
+                return isBuilding;
             }
         },
         components: {
@@ -46,12 +62,13 @@
                 this.$emit('canclemodal');
             },
             getExecuteState: function(currentPipeline){
+                console.log("------getExecuteState------");
                 this.currentPipeline = currentPipeline;
                 this.$axios.get( common.baseUrl + "/pipelines/" + currentPipeline + "/state")
                     .then((response) => {
                         this.lastExecuteState = response.data;
-                        // console.log("------getExecuteState------");
-                        // console.log(this.lastExecuteState);
+                        this.executeStateEntries = this.lastExecuteState.executeStateEntries;
+                        console.log(this.lastExecuteState);
                     }).catch(function (response) {
                     console.log(response)
                 });
@@ -79,6 +96,7 @@
                             this.dialogParamVisible = true;
                         }else {
                             this.dialogParamVisible = false;
+                            this.executePipeline();
                         }
 
                     }).catch(error => {
@@ -91,6 +109,63 @@
                             });
                         }
                 });
+            },
+            executePipeline: function () {
+                // console.log(this.buildParameters);
+                let paramObj = this.transferParam(this.buildParameters);
+                this.$axios.post( common.baseUrl + "/pipelines/" + this.currentPipeline, {
+                    params: {
+                        paramObj
+                    }
+                }).then((response) => {
+                    this.$emit('canclemodal');
+                    this.$message({
+                        message: "流水线运行开始",
+                        type: 'success'
+                    });
+                }).catch(error => {
+                    let data = error.response.data;
+                    if(data.code === 525){
+                        this.$message({
+                            message: data.message,
+                            type: 'warning'
+                        });
+                    }
+                });
+
+                setTimeout( () =>{
+                    this.getExecuteState(this.currentPipeline);
+                }, 2000);
+            },
+            transferParam: function(buildParameters) {
+                let paramObj = new Map();
+                buildParameters.forEach( param => {
+                    paramObj.set(param.name, param.value);
+                });
+                // console.log(paramObj);
+                return paramObj;
+            },
+            stopPipeline: function () {
+                this.$axios.post( common.baseUrl + "/pipelines/" + this.currentPipeline + '/abort')
+                    .then((response) => {
+                        this.$message({
+                            message: "流水线已停止",
+                            type: 'success'
+                        });
+
+                        setTimeout( () =>{
+                            this.getExecuteState(this.currentPipeline);
+                        }, 2000);
+                }).catch(error => {
+                    let data = error.response.data;
+                    if(data.code === 525){
+                        this.$message({
+                            message: data.message,
+                            type: 'warning'
+                        });
+                    }
+                });
+
             }
         }
 

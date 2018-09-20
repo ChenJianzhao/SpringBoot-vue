@@ -49,7 +49,7 @@
                     width="200">
                 <template scope="scope">
                     <!--<el-button @click="executePipeline(scope.$index, pipelineData)" type="primary" size="small" round>运行</el-button>-->
-                    <el-button @click="showParamDialog()" type="primary" size="small" round>运行</el-button>
+                    <el-button @click="showParamDialog(scope.$index, pipelineData)" type="primary" size="small" round>运行</el-button>
                     <el-button @click="showDetail(scope.$index, pipelineData)" type="primary" size="small" round>流水线信息</el-button>
                 </template>
             </el-table-column>
@@ -189,8 +189,10 @@
                 const pipelineName = rows[index].name;
                 this.$refs.detailTable.getPipelineDetail(pipelineName);
             },
-            showParamDialog: function () {
+            showParamDialog: function (index, rows) {
                 console.log('------showParamDialog------');
+                this.currentRow = rows[index];
+                this.currentPipeline = rows[index].name;
                 this.$axios.get( common.baseUrl + "/pipelines/" + this.currentPipeline + "/buildParameters")
                     .then((response) => {
                         this.buildParameters = response.data;

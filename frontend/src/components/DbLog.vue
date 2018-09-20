@@ -43,8 +43,8 @@
                     width="200">
                 <template scope="scope">
                     <el-button @click="showExecuteEntry(scope.$index, executeLogData)" type="primary" size="small" round>详情</el-button>
-                    <el-button v-if="executeLogData[scope.$index].state==='BUILDING'" @click="abortExecute(scope.$index, executeLogData)"
-                               type="primary" size="small" round>停止</el-button>
+                    <!--<el-button v-if="executeLogData[scope.$index].state==='BUILDING'" @click="abortExecute(scope.$index, executeLogData)"
+                               type="primary" size="small" round>停止</el-button>-->
                 </template>
 
             </el-table-column>
@@ -105,12 +105,6 @@
               let data = this.$moment(row.createTime);
               return data.format('YYYY-MM-DD HH:mm:ss')
             },
-            //
-            // dateformatter(row, column) {
-            //   let data = this.$moment(row.createTime, this.$moment.ISO_8601);
-            //   return data.format('YYYY-MM-DD HH:mm:ss')
-            // },
-
             getPipelines: function(){
               this.$axios.get("./pipelines", {
                 params: {
