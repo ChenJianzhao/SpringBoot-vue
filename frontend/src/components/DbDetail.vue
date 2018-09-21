@@ -1,5 +1,9 @@
 <template xmlns="http://www.w3.org/1999/html">
-    <el-dialog title="流水线详情" v-model="dialogFormVisible" :close-on-click-modal="false" :show-close="false"  width="80%">
+    <el-dialog title="流水线详情"
+               v-model="dialogFormVisible"
+               :show-close="false"  width="40%"
+               :visible.sync="dialogFormVisible"
+                :before-close="handleClose">
         <el-row :gutter="20">
             <el-col :span="6"><div class="grid-content bg-purple"><b>流水线名</b></div></el-col>
             <el-col :span="18"><div class="grid-content bg-purple">{{this.pipelineDetail.name}}</div></el-col>
@@ -23,7 +27,7 @@
         <el-table
             :data="this.pipelineDetail.stages"
             border
-            style="width: 80%"
+            style="width: 100%"
             class="table">
             <el-table-column
                 prop="seq"
@@ -88,7 +92,10 @@
             },
             boolFormatter: function (row, column) {
                 return row.autoTrigger + '';
-            }
+            },
+            handleClose() {
+                this.$emit('canclemodal');
+            },
         }
 
     }

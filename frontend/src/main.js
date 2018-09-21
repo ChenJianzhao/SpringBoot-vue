@@ -19,11 +19,14 @@ import {
     Icon,
     Menu,
     Submenu,
-    Message
+    Message,
+    MenuItem,
+    Step,
+    Steps,
 } from 'element-ui'
 import App from './App.vue'
-import 'element-ui/lib/theme-default/index.css'
-// import 'element-ui/lib/theme-chalk/index.css'
+// import 'element-ui/lib/theme-default/index.css'
+import 'element-ui/lib/theme-chalk/index.css'
 // import 'element-theme-chalk/lib/index.css'
 import lang from 'element-ui/lib/locale/lang/en'
 import locale from 'element-ui/lib/locale'
@@ -53,7 +56,9 @@ Vue.use(Option);
 Vue.use(Icon);
 Vue.use(Menu);
 Vue.use(Submenu);
-// Vue.use(Message);
+Vue.use(MenuItem);
+Vue.use(Step);
+Vue.use(Steps);
 
 locale.use(lang);
 

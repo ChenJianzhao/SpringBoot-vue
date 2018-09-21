@@ -1,5 +1,9 @@
 <template>
-    <el-dialog title="执行记录详情" v-model="dialogFormVisible" :close-on-click-modal="false" :show-close="false"  width="90%">
+    <el-dialog title="执行记录详情"
+               v-model="dialogFormVisible"
+               :close-on-click-modal="false"
+               :show-close="false"  width="60%"
+               :visible.sync="dialogFormVisible" :before-close="handleClose">
         <el-table
         :data="executeEntryData"
         border
@@ -139,6 +143,9 @@
             formatter(row, column) {
                 let data = this.$moment(row.createTime);
                 return data.format('YYYY-MM-DD HH:mm:ss')
+            },
+            handleClose() {
+                this.$emit('canclemodal');
             },
         }
 

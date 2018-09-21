@@ -2,17 +2,28 @@
     <div>
         <div id="nav">
         <!--<lable>执行进度</lable>-->
-            <ul>
-                <li v-for="item in lastExecuteState.executeStateEntries">
-                <!--{{item.state}}-->
-                    <el-button v-bind:disabled="!(item.state==null && isBuilding)" type="info" size="small" round>{{item.displayName}}</el-button>
-                    <span class="el-icon-arrow-right"></span>
-                </li>
-            </ul>
-            <el-button v-if="isBuilding" @click="showParamDialog" type="primary"  round >继续</el-button>
-            <el-button v-if="isBuilding" @click="stopPipeline" type="primary"  round>停止</el-button>
-        </div>
+            <!--<ul>-->
+                <!--<li v-for="item in executeStateEntries">-->
+                <!--&lt;!&ndash;{{item.state}}&ndash;&gt;-->
+                    <!--<el-button v-bind:disabled="!(item.state==null && isBuilding)" type="info" size="small" round>{{item.displayName}}</el-button>-->
+                    <!--<span class="el-icon-arrow-right"></span>-->
+                <!--</li>-->
+            <!--</ul>-->
+            <el-steps :space="200" :active=lastExecuteState.currentStageIndex
+                      align-center finish-status="success" process-status="process" >
+                <el-step v-for="(item,index) in executeStateEntries"
 
+                         :key="index" :description="item.displayName"
+                icon="el-icon-time">
+
+                </el-step>
+                <!--<el-button v-if="isBuilding" @click="showParamDialog" type="primary"   size="small" round>继续</el-button>-->
+            </el-steps>
+        </div>
+        <div id="control-bar">
+            <el-button v-if="isBuilding" @click="showParamDialog" type="primary" size="small" icon="el-icon-caret-right" circle></el-button>
+            <el-button v-if="isBuilding" @click="stopPipeline" type="danger"   size="small" icon="el-icon-close" circle></el-button>
+        </div>
         <db-param ref="paramForm" :dialogParamVisible="dialogParamVisible" :buildParameters="buildParameters" :currentPipeline="currentPipeline"
                   v-on:canclemodal="dialogParamHide"> </db-param>
     </div>
@@ -90,7 +101,7 @@
                                 param.value = options[0].value;
                             }
                         });
-                        console.log(this.buildParameters);
+                        // console.log(this.buildParameters);
                         if(this.buildParameters .length !==0) {
                             console.log("show dialogParamVisible");
                             this.dialogParamVisible = true;
@@ -175,9 +186,10 @@
 
 <style>
 
-    #nav {
-        height: 20px;
-        margin-top: 10px;
+    #nav, #control-bar{
+        float: left;
+        height:80px;
+        margin-top: 15px;
     }
 
     #nav ul {

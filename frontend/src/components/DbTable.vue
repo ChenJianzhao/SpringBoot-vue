@@ -31,26 +31,22 @@
           <el-table-column
             prop="costTime"
             label="上次构建耗时"
-            width="130">
+            width="200">
           </el-table-column>
             <el-table-column
                 prop="totalCostTime"
                 label="上次总耗时"
-                width="130">
-            </el-table-column>
-            <el-table-column
-                prop="totalCostTime"
-                label="进度"
-                width="300">
+                width="200">
             </el-table-column>
             <el-table-column
                     fixed="right"
                     label="操作"
                     width="200">
                 <template scope="scope">
-                    <!--<el-button @click="executePipeline(scope.$index, pipelineData)" type="primary" size="small" round>运行</el-button>-->
-                    <el-button @click="showParamDialog(scope.$index, pipelineData)" type="primary" size="small" round>运行</el-button>
-                    <el-button @click="showDetail(scope.$index, pipelineData)" type="primary" size="small" round>流水线信息</el-button>
+                    <!--<el-button @click="showParamDialog(scope.$index, pipelineData)" type="primary" size="small" round>运行</el-button>-->
+                    <el-button @click="showParamDialog(scope.$index, pipelineData)" type="primary" size="small" icon="el-icon-caret-right" circle></el-button>
+                    <el-button @click="showDetail(scope.$index, pipelineData)" type="primary" size="small" round>信息</el-button>
+                    <!--<el-button @click="showDetail(scope.$index, pipelineData)" type="primary" size="small" icon="el-icon-info" circle></el-button>-->
                 </template>
             </el-table-column>
         </el-table>
@@ -61,7 +57,7 @@
         <db-log ref="logTable" :currentPipeline="currentPipeline"></db-log>
         <db-detail ref="detailTable" :dialogFormVisible="dialogFormVisible" v-on:canclemodal="dialogVisible"> </db-detail>
         <db-param ref="paramForm" :dialogParamVisible="dialogParamVisible" :buildParameters="buildParameters" :currentPipeline="currentPipeline"
-                  v-on:canclemodal="dialogParamHide"> </db-param>
+                  v-on:canclemodal="dialogParamHide" > </db-param>
     </div>
 
 </template>
@@ -147,6 +143,7 @@
                         log.costTime = this.millSecondFormat(log.costTime);
                         log.totalCostTime = this.millSecondFormat(log.totalCostTime);
                     }
+
 
                     this.$refs.singleTable.setCurrentRow(this.pipelineData[0]);
                 }).catch(function (response) {

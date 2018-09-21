@@ -29,7 +29,7 @@
           <el-table-column
             prop="costTime"
             label="持续时间"
-            width="100">
+            width="150">
           </el-table-column>
           <el-table-column
             prop="createTime"

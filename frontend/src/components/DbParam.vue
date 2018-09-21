@@ -1,5 +1,11 @@
 <template>
-    <el-dialog title="构建参数" v-model="dialogParamVisible" :close-on-click-modal="false" :show-close="false">
+    <!--:close-on-click-modal="false"  旧版属性 -->
+    <el-dialog title="构建参数"
+               v-model="dialogParamVisible"
+               :visible.sync="dialogParamVisible"
+               lock-scroll
+               close-on-press-escape
+               :before-close="handleClose">
         <el-form v-for="(item, index) in buildParameters" :key="item.name" >
             <el-form-item :label="item.displayName" :label-width="formLabelWidth">
                 <el-input v-if="item.dataType === 2" v-model='item.value' placeholder="请输入内容"></el-input>
@@ -71,6 +77,9 @@
                 });
                 console.log(paramObj);
                 return paramObj;
+            },
+            handleClose() {
+                this.$emit('canclemodal');
             },
         }
 
